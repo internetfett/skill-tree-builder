@@ -1,6 +1,6 @@
 from django import forms
 
-from skills.skills.models import SkillTree
+from skills.skills.models import SkillTree, SkillTreeBranch
 
 
 class CreateSkillTreeForm(forms.ModelForm):
@@ -8,3 +8,11 @@ class CreateSkillTreeForm(forms.ModelForm):
 
     class Meta:
         model = SkillTree
+
+
+class CreateSkillTreeBranchForm(forms.ModelForm):
+    name = forms.CharField(required=True)
+    skill_tree = forms.ModelChoiceField(queryset=SkillTree.objects.all(), widget=forms.HiddenInput())
+
+    class Meta:
+        model = SkillTreeBranch

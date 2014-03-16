@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-  {% load bootstrap3 i18n %}
+  {% load bootstrap3 staticfiles %}
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -23,9 +23,11 @@
             {% block content %}{% endblock %}
         </div>
 
-        {% block javascript %}
-            {% bootstrap_javascript %}
-        {% endblock javascript %}
+        {% bootstrap_javascript %}
+        <script type="text/javascript" src="{% static 'js/underscore-min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/backbone-min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/backbone-tastypie.js' %}"></script>
+        {% block javascript %}{% endblock %}
     {% endblock body %}
     </body>
 </html>
