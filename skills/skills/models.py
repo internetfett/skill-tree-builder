@@ -29,7 +29,7 @@ class Skill(models.Model):
 class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)
     text = models.CharField(max_length=255, blank=False)
-    pre_req = models.ForeignKey(SkillLevel)
+    pre_req = models.ForeignKey("self")
     skill = models.ForeignKey(Skill)
 
     def __unicode__(self):

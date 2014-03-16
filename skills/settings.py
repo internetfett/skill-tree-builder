@@ -23,6 +23,9 @@ SECRET_KEY = 'r%5t^ct!piqo+!3dhr!tgs&nl-np86fq*7@@hc8#873d4wuysa'
 DEBUG = True
 
 TEMPLATE_DEBUG = True
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR,  'skills/templates'),
+)
 
 ALLOWED_HOSTS = []
 
@@ -39,7 +42,7 @@ INSTALLED_APPS = (
     
     'bootstrap3',
     'registration',
-    'skills',
+    'skills.skills',
 )
 
 MIDDLEWARE_CLASSES = (
