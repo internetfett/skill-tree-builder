@@ -20,6 +20,7 @@ class Skill(models.Model):
     name = models.CharField(max_length=128, blank=False)
     point_req = models.IntegerField(blank=True, default=1)
     other_req = models.CharField(max_length=128, blank=True, null=True)
+    pre_req = models.ForeignKey("self")
     skill_tree_branch = models.ForeignKey(SkillTreeBranch)
 
     def __unicode__(self):
@@ -28,8 +29,8 @@ class Skill(models.Model):
 
 class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)
+    cost = models.IntegerField(blank=True, default=1)
     text = models.CharField(max_length=255, blank=False)
-    pre_req = models.ForeignKey("self")
     skill = models.ForeignKey(Skill)
 
     def __unicode__(self):
