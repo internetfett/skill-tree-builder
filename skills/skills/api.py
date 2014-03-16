@@ -11,6 +11,7 @@ class UserResource(ModelResource):
     class Meta:
         queryset = User.objects.all()
         resource_name = 'user'
+        allowed_methods = ['get']
 
 
 class SkillTreeResource(ModelResource):
@@ -19,6 +20,7 @@ class SkillTreeResource(ModelResource):
     class Meta:
         queryset = SkillTree.objects.all()
         resource_name = 'skill_tree'
+        allowed_methods = ['get']
         authorization = Authorization()
 
 
