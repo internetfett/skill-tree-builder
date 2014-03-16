@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'registration',
     'skills.skills',
+    'tastypie',
 )
 
 MIDDLEWARE_CLASSES = (

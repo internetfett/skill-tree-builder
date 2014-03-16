@@ -25,7 +25,11 @@ class SkillTreeMixin(object):
 
 
 class CreateSkillTreeView(LoginRequiredMixin, SkillTreeMixin, CreateView):
-    pass
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.owner = self.request.user
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class DetailSkillTreeView(LoginRequiredMixin, SkillTreeMixin, DetailView):

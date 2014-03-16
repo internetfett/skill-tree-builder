@@ -8,6 +8,7 @@ class CreateSkillTreeForm(forms.ModelForm):
 
     class Meta:
         model = SkillTree
+        exclude = ["owner"]
 
 
 class CreateSkillTreeBranchForm(forms.ModelForm):
