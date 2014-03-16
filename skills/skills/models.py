@@ -16,20 +16,11 @@ class SkillTreeBranch(models.Model):
         return self.name
 
 
-class SkillTier(models.Model):
-    depth = models.IntegerField(blank=False)
+class Skill(models.Model):
+    name = models.CharField(max_length=128, blank=False)
     point_req = models.IntegerField(blank=True, default=1)
     other_req = models.CharField(max_length=128, blank=True, null=True)
     skill_tree_branch = models.ForeignKey(SkillTreeBranch)
-
-    def __unicode__(self):
-        return "Tier {0}".format(self.depth)
-
-
-class Skill(models.Model):
-    name = models.CharField(max_length=128, blank=False)
-    text = models.CharField(max_length=255, blank=False)
-    skill_tier = models.ForeignKey(SkillTier)
 
     def __unicode__(self):
         return self.name
@@ -38,8 +29,7 @@ class Skill(models.Model):
 class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)
     text = models.CharField(max_length=255, blank=False)
-    point_req = models.IntegerField(blank=True, default=1)
-    other_req = models.CharField(max_length=128, blank=True, null=True)
+    pre_req = models.ForeignKey(SkillLevel)
     skill = models.ForeignKey(Skill)
 
     def __unicode__(self):
