@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+  {% load bootstrap3 i18n %}
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="description" content="{% block meta_description %}{% endblock %}" />
+        <meta name="author" content="{% block meta_author %}{% endblock %}" />
+        <meta name="viewport" content="width=device-width" />
+        {% bootstrap_css %}
+        {% block css %}{% endblock %}
+    </head>
+
+    <body class="{% block body_class %}{% endblock %}">
+    {% block body %}
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        {% bootstrap_messages %}
+
+        {% block content %}
+        {% endblock content %}
+
+        {% block javascript %}
+            {% bootstrap_javascript %}
+        {% endblock javascript %}
+    {% endblock body %}
+    </body>
+</html>
