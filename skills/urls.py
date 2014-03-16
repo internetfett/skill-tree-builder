@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from skills.views import CreateSkillTreeView, DetailSkillTreeView, UpdateSkillTreeView, DeleteSkillTreeView
+from skills.views import CreateSkillTreeView, DetailSkillTreeView, UpdateSkillTreeView, DeleteSkillTreeView, ListSkillTreeView
 
 from django.contrib import admin
 admin.autodiscover()
@@ -16,4 +16,5 @@ urlpatterns = patterns('',
     url(r'^skill-tree/(?P<pk>\d+)/view/', DetailSkillTreeView.as_view(), name='detail_skill_tree'),
     url(r'^skill-tree/(?P<pk>\d+)/edit/', UpdateSkillTreeView.as_view(), name='update_skill_tree'),
     url(r'^skill-tree/(?P<pk>\d+)/delete/', DeleteSkillTreeView.as_view(), name='delete_skill_tree'),
+    url(r'^skill-tree/list/', ListSkillTreeView.as_view(), name='list_skill_trees'),
 )

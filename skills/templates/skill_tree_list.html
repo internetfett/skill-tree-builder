@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Trees{% endblock %}
+
+{% block content %}
+    {% for skilltree in skilltree_list %}
+        <a href="{% url 'detail_skill_tree' skilltree.id %}">{{ skilltree.name }}</a>
+    {% endfor %}
+{% endblock %}

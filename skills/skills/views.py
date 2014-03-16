@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 #from django.shortcuts import render
 
@@ -39,3 +39,7 @@ class UpdateSkillTreeView(LoginRequiredMixin, SkillTreeMixin, UpdateView):
 class DeleteSkillTreeView(LoginRequiredMixin, SkillTreeMixin, DeleteView):
     template_name = "skill_tree_delete.html"
     success_url = reverse_lazy('create_skill_tree')
+
+
+class ListSkillTreeView(LoginRequiredMixin, SkillTreeMixin, ListView):
+    template_name = "skill_tree_list.html"

@@ -3,7 +3,7 @@
 {% block title %}Delete Skill Tree{% endblock %}
 
 {% block content %}
-    <p>Are you sure you want to delete {{ object.name }}?
+    <p>Are you sure you want to delete {{ skilltree.name }}?
     {% load bootstrap3 %}
     <form action="" method="post" class="form">
         {% csrf_token %}
