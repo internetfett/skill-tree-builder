@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse_lazy
 from django.db import models
 
 
@@ -6,6 +7,9 @@ class SkillTree(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse_lazy('detail_skill_tree', args=[str(self.id)])
 
 
 class SkillTreeBranch(models.Model):
