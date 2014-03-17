@@ -5,10 +5,13 @@
 {% block content %}
     {% load bootstrap3 %}
     <h2>{{ skilltree.name }}</h2>
-    <button class="btn btn-primary" data-toggle="modal" data-target="#create_branch">
-        {% bootstrap_icon "plus" %} Create Branch
-    </button>
-    <ul id="branch-list"></ul>
+    <div class="pull-right">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#create_branch">
+            {% bootstrap_icon "plus" %} Create Branch
+        </button>
+    </div>
+    <ul class="nav nav-tabs" id="branch-nav"></ul>
+    <div class="tab-content" id="branch-tabs"></div>
 {% endblock %}
 
 {% block modals %}
@@ -54,16 +57,48 @@
             
             var branches = new BranchList;
             
-            var BranchView = Backbone.View.extend({
+            var BranchNavView = Backbone.View.extend({
                 tagName: "li",
-                className: "branch",
+                className: function() {
+                    var classes = "nav-item";
+                    if(this.model == branches.first()) {
+                        classes += " active";
+                    }
+                    return classes;
+                },
+                template: _.template($('#branch-nav-template').html()),
                 
                 initialize: function() {
                     this.listenTo(this.model, "change", this.render);
                 },
                 
                 render: function() {
-                    this.$el.html(this.model.attributes.name);
+                    this.$el.html(this.template(this.model.toJSON()));
+                    return this;
+                }
+            });
+            
+            var BranchTabView = Backbone.View.extend({
+                tagName: "div",
+                className: function() {
+                    var classes = "tab-pane";
+                    if(this.model == branches.first()) {
+                        classes += " active";
+                    }
+                    return classes;
+                },
+                template: _.template($('#branch-tab-template').html()),
+                
+                id: function() {
+                    return "branch-" + this.model.attributes.id;
+                },
+                
+                initialize: function() {
+                    this.listenTo(this.model, "change", this.render);
+                },
+                
+                render: function() {
+                    this.$el.html(this.template(this.model.toJSON()));
                     return this;
                 }
             });
@@ -91,8 +126,10 @@
                 },
                 
                 addOne: function(branch) {
-                    var view = new BranchView({model: branch});
-                    this.$("#branch-list").append(view.render().el);
+                    var nav_view = new BranchNavView({model: branch});
+                    this.$("#branch-nav").append(nav_view.render().el);                    
+                    var tab_view = new BranchTabView({model: branch});
+                    this.$("#branch-tabs").append(tab_view.render().el);
                 },
                 
                 addAll: function() {
@@ -112,5 +149,13 @@
             
             var App = new AppView;
         });
+    </script>
+    
+    <script type="text/template" id="branch-nav-template">
+        <a href="#branch-<%- id %>" data-toggle="tab"><%- name %></a>
+    </script>
+    
+    <script type="text/template" id="branch-tab-template">
+        Name: <%- name %>
     </script>
 {% endblock %}
