@@ -4,7 +4,7 @@ from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
 
-from skills.skills.models import SkillTree, SkillTreeBranch
+from skills.skills.models import SkillTree, SkillTreeBranch, Skill
 
 
 class UserResource(ModelResource):
@@ -30,4 +30,11 @@ class SkillTreeBranchResource(ModelResource):
     class Meta:
         queryset = SkillTreeBranch.objects.all()
         resource_name = 'skill_tree_branch'
+        authorization = Authorization()
+
+
+class SkillResource(ModelResource):
+    class Meta:
+        queryset = Skill.objects.all()
+        resource_name = 'skill'
         authorization = Authorization()

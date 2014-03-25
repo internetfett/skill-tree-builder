@@ -7,7 +7,7 @@
     <h2>{{ skilltree.name }}</h2>
     <div class="pull-right">
         <button class="btn btn-primary" data-toggle="modal" data-target="#create_branch">
-            {% bootstrap_icon "plus" %} Create Branch
+            {% bootstrap_icon "plus" %} Branch
         </button>
     </div>
     <ul class="nav nav-tabs" id="branch-nav"></ul>
@@ -17,7 +17,7 @@
 {% block modals %}
     <div class="modal fade" id="create_branch" tabindex="-1" role="dialog">
         <div class="modal-dialog">
-            <form method="post" class="form" action="javascript:void(0)">
+            <form method="post" class="form" action="javascript:void(0)" id="branch_form">
                 {% csrf_token %}
                 <div class="modal-content">
                     <div class="modal-header">
@@ -35,6 +35,26 @@
             </form>
         </div>
     </div>
+    <div class="modal fade" id="create_skill" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" class="form" action="javascript:void(0)" id="skill_form">
+                {% csrf_token %}
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Create Skill</h4>
+                    </div>
+                    <div class="modal-body">
+                        {% bootstrap_form skill_form %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascript %}
@@ -43,6 +63,14 @@
             Backbone.Tastypie.csrfToken = $("input[name=csrfmiddlewaretoken]").value;
             
             var Branch = Backbone.Model.extend({
+                defaults: function() {
+                    return {
+                        name: "Default"
+                    };
+                }
+            });
+            
+            var Skill = Backbone.Model.extend({
                 defaults: function() {
                     return {
                         name: "Default"
@@ -107,15 +135,18 @@
                 el: $("body"),
                 
                 events: {
-                    "submit form": "createBranch",
+                    "submit #branch_form": "createBranch",
+                    "submit #skill_form": "createSkill"
                 },
                 
                 initialize: function() {
-                    this.input_name = $('#id_name');
-                    this.input_skill_tree = $('#id_skill_tree');
+                    this.input_branch_name = $('#id_branch-name');
+                    this.input_branch_tree = $('#id_branch-skill_tree');
+                    this.input_skill_name = $('#id_skill-name');
+                    this.input_skill_branch = $('#id_skill-skill_tree_branch');
                     
-                    this.listenTo(branches, 'add', this.addOne);
-                    this.listenTo(branches, 'reset', this.addAll);
+                    this.listenTo(branches, 'add', this.addBranch);
+                    this.listenTo(branches, 'reset', this.addBranches);
                     //this.listenTo(branches, 'all', this.render);
                     
                     branches.fetch();
@@ -125,25 +156,34 @@
                     //console.log('rendered');
                 },
                 
-                addOne: function(branch) {
+                addBranch: function(branch) {
                     var nav_view = new BranchNavView({model: branch});
                     this.$("#branch-nav").append(nav_view.render().el);                    
                     var tab_view = new BranchTabView({model: branch});
                     this.$("#branch-tabs").append(tab_view.render().el);
                 },
                 
-                addAll: function() {
-                    branches.each(this.addOne, this);
+                addBranches: function() {
+                    branches.each(this.addBranch, this);
                 },
                 
                 createBranch: function(event) {
                     event.preventDefault();
                     $('#create_branch').modal('hide');
                     branches.create({
-                        name: this.input_name.val(),
-                        skill_tree: "/api/v1/user/" + this.input_skill_tree.val() + "/"
+                        name: this.input_branch_name.val(),
+                        skill_tree: "/api/v1/user/" + this.input_branch_tree.val() + "/"
                     });
-                    this.input_name.val();
+                    this.input_branch_name.val();
+                },
+                
+                createSkill: function(event) {
+                    event.preventDefault();
+                    $('#create_skill').modal('hide');
+                    Skill.save({
+                        name: this.input_skill_name.val()
+                    });
+                    this.input_skill_name.val();
                 }
             });
             
@@ -157,5 +197,8 @@
     
     <script type="text/template" id="branch-tab-template">
         Name: <%- name %>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#create_skill">
+            {% bootstrap_icon "plus" %} Skill
+        </button>
     </script>
 {% endblock %}

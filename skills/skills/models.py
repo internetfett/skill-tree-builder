@@ -26,7 +26,7 @@ class Skill(models.Model):
     name = models.CharField(max_length=128, blank=False)
     point_req = models.IntegerField(blank=True, default=1)
     other_req = models.CharField(max_length=128, blank=True, null=True)
-    pre_req = models.ForeignKey("self")
+    pre_req = models.ForeignKey("self", blank=True, null=True)
     skill_tree_branch = models.ForeignKey(SkillTreeBranch)
 
     def __unicode__(self):
@@ -41,3 +41,11 @@ class SkillLevel(models.Model):
 
     def __unicode__(self):
         return "{0} {1}".format(self.skill.name, self.level)
+
+def create_skill_level(sender, instance, created, **kwargs):
+    if created:
+        skill_level = SkillLevel()
+        skill_level.skill = instance
+        skill_level.save()
+
+models.signals.post_save.connect(create_skill_level, sender=Skill)

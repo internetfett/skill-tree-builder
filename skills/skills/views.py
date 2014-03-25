@@ -8,7 +8,7 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 #from django.shortcuts import render
 
-from skills.skills.forms import CreateSkillTreeForm, CreateSkillTreeBranchForm
+from skills.skills.forms import CreateSkillTreeForm, CreateSkillTreeBranchForm, CreateSkillForm
 from skills.skills.models import SkillTree
 
 
@@ -38,7 +38,8 @@ class DetailSkillTreeView(LoginRequiredMixin, SkillTreeMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(DetailSkillTreeView, self).get_context_data(**kwargs)
         context.update({
-            'skill_tree_branch_form': CreateSkillTreeBranchForm(initial={'skill_tree': self.object}),
+            'skill_tree_branch_form': CreateSkillTreeBranchForm(initial={'skill_tree': self.object}, prefix="branch"),
+            'skill_form': CreateSkillForm(prefix="skill")
         })
         return context
     
