@@ -70,6 +70,11 @@
                 }
             });
             
+            var BranchList = Backbone.Collection.extend({
+                model: Branch,
+                url: '/api/v1/skill_tree_branch/'
+            });
+            
             var Skill = Backbone.Model.extend({
                 defaults: function() {
                     return {
@@ -78,9 +83,17 @@
                 }
             });
             
-            var BranchList = Backbone.Collection.extend({
-                model: Branch,
-                url: '/api/v1/skill_tree_branch/'
+            var SkillList = Backbone.Collection.extend({
+                model: Skill,
+                url: function() {
+                    return '/api/v1/skill/?skill_tree_branch=' + this.skill_tree_branch;
+                },
+                
+                initialize: function(options) {
+                    if(options.skill_tree_branch) {
+                        this.skill_tree_branch = options.skill_tree_branch;
+                    }
+                }
             });
             
             var branches = new BranchList;
@@ -120,6 +133,31 @@
                 id: function() {
                     return "branch-" + this.model.attributes.id;
                 },
+                
+                initialize: function() {
+                    this.skills = new SkillList({'skill_tree_branch': this.model.attributes.id});
+                    this.skills.fetch();
+                    
+                    this.listenTo(this.model, 'change', this.render);
+                    this.listenTo(this.skills, 'all', this.render);
+                },
+                
+                render: function() {
+                    this.$el.html(this.template(this.model.toJSON()));
+                    _.each(this.skills.models, this.render_skill, this);
+                    return this;
+                },
+                
+                render_skill: function(skill) {
+                    var skill_view = new SkillView({model: skill});
+                    skill_view.render();
+                    this.$el.append(skill_view.el);
+                }
+            });
+            
+            var SkillView = Backbone.View.extend({
+                tagName: "div",
+                template: _.template($('#skill-template').html()),
                 
                 initialize: function() {
                     this.listenTo(this.model, "change", this.render);
@@ -200,5 +238,9 @@
         <button class="btn btn-primary" data-toggle="modal" data-target="#create_skill">
             {% bootstrap_icon "plus" %} Skill
         </button>
+    </script>
+    
+    <script type="text/template" id="skill-template">
+        Skill: <%- name %>
     </script>
 {% endblock %}

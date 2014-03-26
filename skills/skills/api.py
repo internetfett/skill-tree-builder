@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from tastypie import fields
 from tastypie.authorization import Authorization
-from tastypie.resources import ModelResource
+from tastypie.resources import ModelResource, ALL
 
 from skills.skills.models import SkillTree, SkillTreeBranch, Skill
 
@@ -34,7 +34,12 @@ class SkillTreeBranchResource(ModelResource):
 
 
 class SkillResource(ModelResource):
+    skill_tree_branch = fields.ForeignKey(SkillTreeBranchResource, 'skill_tree_branch')
+
     class Meta:
         queryset = Skill.objects.all()
         resource_name = 'skill'
         authorization = Authorization()
+        filtering = {
+            'skill_tree_branch': ALL
+        }
