@@ -18,6 +18,9 @@ class SkillTreeBranch(models.Model):
     name = models.CharField(max_length=128, blank=False)
     skill_tree = models.ForeignKey(SkillTree)
 
+    class Meta:
+        verbose_name_plural = 'Skill tree branches'
+
     def __unicode__(self):
         return self.name
 

@@ -31,15 +31,18 @@ class SkillTreeBranchResource(ModelResource):
         queryset = SkillTreeBranch.objects.all()
         resource_name = 'skill_tree_branch'
         authorization = Authorization()
+        always_return_data = True
 
 
 class SkillResource(ModelResource):
     skill_tree_branch = fields.ForeignKey(SkillTreeBranchResource, 'skill_tree_branch')
+    pre_req = fields.ForeignKey('self', 'pre_req', null=True)
 
     class Meta:
         queryset = Skill.objects.all()
         resource_name = 'skill'
         authorization = Authorization()
+        always_return_data = True
         filtering = {
             'skill_tree_branch': ALL
         }
