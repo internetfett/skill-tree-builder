@@ -39,7 +39,16 @@
             });
             
             var SkillView = Backbone.Marionette.ItemView.extend({
-                template: '#skill-template'
+                template: '#skill-template',
+                onShow: function() {
+                    $('[data-toggle="popover"]', this.el).popover({
+                        trigger: 'hover',
+                        placement: 'right',
+                        html: true,
+                        title: $('.skill_level', this.el).html(),
+                        content: $('.skill_text', this.el).html()
+                    });
+                }
             });
             
             var Branch = Backbone.Model.extend({
@@ -205,7 +214,13 @@
     </script>
     
     <script type="text/template" id="skill-template">
-        Skill: <%- name %>
+        <button type="button" class="btn btn-default" data-toggle="popover">
+            Skill: <%- name %>
+        </button>
+        <% _.each(skill_levels, function(skill_level) { %>
+            <div class="hidden skill_level">Level: <%- skill_level.level %> Cost: <%- skill_level.cost %></div>
+            <div class="hidden skill_text"><% if (point_req) { %>Requires <%- point_req %> points<br/><% } %><% if (other_req) { %><%- other_req %><br/><% } %><%- skill_level.text %></div>
+        <% }); %>
     </script>
 
     <script type="text/template" id="create-branch-form">

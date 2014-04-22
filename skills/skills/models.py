@@ -40,7 +40,7 @@ class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)
     cost = models.IntegerField(blank=True, default=1)
     text = models.CharField(max_length=255, blank=False)
-    skill = models.ForeignKey(Skill)
+    skill = models.ForeignKey(Skill, related_name='skill_levels')
 
     def __unicode__(self):
         return "{0} {1}".format(self.skill.name, self.level)
