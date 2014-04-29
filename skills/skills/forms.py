@@ -1,6 +1,6 @@
 from django import forms
 
-from skills.skills.models import SkillTree, SkillTreeBranch, Skill
+from skills.skills.models import SkillTree, SkillTreeBranch, Skill, SkillLevel
 
 
 class CreateSkillTreeForm(forms.ModelForm):
@@ -28,3 +28,13 @@ class CreateSkillForm(forms.ModelForm):
     class Meta:
         model = Skill
         exclude = ["skill_tree_branch"]
+
+
+class CreateSkillLevelForm(forms.ModelForm):
+    level = forms.IntegerField(required=False)
+    cost = forms.IntegerField(required=False, initial=1)
+    text = forms.CharField(required=True)
+    skill = forms.ModelChoiceField(queryset=Skill.objects.all(), required=True, widget=forms.HiddenInput())
+
+    class Meta:
+        model = SkillLevel

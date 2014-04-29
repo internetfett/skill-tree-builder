@@ -24,6 +24,9 @@ class SkillTreeBranch(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse_lazy('detail_skill_tree', args=[str(self.skill_tree.id)])
+
 
 class Skill(models.Model):
     name = models.CharField(max_length=128, blank=False)
