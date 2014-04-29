@@ -114,13 +114,22 @@
                     event.preventDefault();
                     $('#create_skill_' + this.model.attributes.id).modal('hide');
                     if(!parseInt(this.ui.point_req.val())) this.ui.point_req.val(0);
-                    this.collection.create({
-                        name: this.ui.name.val(),
-                        skill_tree_branch: "/api/v1/skill_tree_branch/" + this.model.attributes.id + "/",
-                        point_req: this.ui.point_req.val(),
-                        other_req: this.ui.other_req.val(),
-                        pre_req: "/api/v1/skill/" + this.ui.pre_req.val() + "/"
-                    }, { wait: true });
+                    if(!parseInt(this.ui.pre_req.val())) {
+                        this.collection.create({
+                            name: this.ui.name.val(),
+                            skill_tree_branch: "/api/v1/skill_tree_branch/" + this.model.attributes.id + "/",
+                            point_req: this.ui.point_req.val(),
+                            other_req: this.ui.other_req.val()
+                        }, { wait: true });
+                    } else {
+                        this.collection.create({
+                            name: this.ui.name.val(),
+                            skill_tree_branch: "/api/v1/skill_tree_branch/" + this.model.attributes.id + "/",
+                            point_req: this.ui.point_req.val(),
+                            other_req: this.ui.other_req.val(),
+                            pre_req: "/api/v1/skill/" + this.ui.pre_req.val() + "/"
+                        }, { wait: true });
+                    }
                     this.ui.name.val('');
                     this.ui.point_req.val('');
                     this.ui.other_req.val('');

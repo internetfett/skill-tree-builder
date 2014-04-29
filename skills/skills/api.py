@@ -37,7 +37,7 @@ class SkillTreeBranchResource(ModelResource):
 class SkillResource(ModelResource):
     skill_tree_branch = fields.ForeignKey(SkillTreeBranchResource, 'skill_tree_branch')
     pre_req = fields.ForeignKey('self', 'pre_req', null=True)
-    skill_levels = fields.ToManyField('skills.skills.api.SkillLevelResource', 'skill_levels', full=True)
+    skill_levels = fields.ToManyField('skills.skills.api.SkillLevelResource', 'skill_levels', full=True, null=True)
 
     class Meta:
         queryset = Skill.objects.all()
