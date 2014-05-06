@@ -66,15 +66,19 @@ class SkillTreeBranchMixin(object):
 
 
 class CreateSkillTreeBranchView(LoginRequiredMixin, SkillTreeBranchMixin, CreateView):
-    def form_valid(self, form):
-        print self.kwargs.get('id')
-        self.object = form.save(commit=False)
-        self.object.owner = self.request.user
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_initial(self):
         skill_tree = get_object_or_404(SkillTree, id=self.kwargs.get('id'))
         return {
             'skill_tree': skill_tree,
         }
+
+
+class UpdateSkillTreeBranchView(LoginRequiredMixin, SkillTreeBranchMixin, UpdateView):
+    template_name = "skill_tree_branch_update.html"
+
+
+class DeleteSkillTreeBranchView(LoginRequiredMixin, SkillTreeBranchMixin, DeleteView):
+    template_name = "skill_tree_branch_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy('create_skill_tree_branch', args=[self.object.skill_tree.id])

@@ -3,7 +3,8 @@ from django.conf.urls import patterns, include, url
 from tastypie.api import Api
 
 from skills.api import UserResource, SkillTreeResource, SkillTreeBranchResource, SkillResource, SkillLevelResource
-from skills.views import CreateSkillTreeView, DetailSkillTreeView, UpdateSkillTreeView, DeleteSkillTreeView, ListSkillTreeView, CreateSkillTreeBranchView
+from skills.views import CreateSkillTreeView, DetailSkillTreeView, UpdateSkillTreeView, DeleteSkillTreeView, ListSkillTreeView
+from skills.views import CreateSkillTreeBranchView, UpdateSkillTreeBranchView, DeleteSkillTreeBranchView
 
 v1_api = Api(api_name='v1')
 v1_api.register(UserResource())
@@ -25,4 +26,6 @@ urlpatterns = patterns('',
     url(r'^skill-tree/(?P<pk>\d+)/delete/', DeleteSkillTreeView.as_view(), name='delete_skill_tree'),
     url(r'^skill-tree/list/', ListSkillTreeView.as_view(), name='list_skill_trees'),
     url(r'^skill-tree-branch/create/(?P<id>\d+)/', CreateSkillTreeBranchView.as_view(), name='create_skill_tree_branch'),
+    url(r'^skill-tree-branch/(?P<pk>\d+)/edit/', UpdateSkillTreeBranchView.as_view(), name='update_skill_tree_branch'),
+    url(r'^skill-tree-branch/(?P<pk>\d+)/delete/', DeleteSkillTreeBranchView.as_view(), name='delete_skill_tree_branch'),
 )
