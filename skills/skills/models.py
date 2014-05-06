@@ -51,6 +51,10 @@ class SkillLevel(models.Model):
     def __unicode__(self):
         return "{0} {1}".format(self.skill.name, self.level)
 
+    def get_absolute_url(self):
+        return reverse_lazy('detail_skill_tree', args=[str(self.skill.skill_tree_branch.skill_tree.id)])
+    
+
 def create_skill_level(sender, instance, created, **kwargs):
     if created:
         skill_level = SkillLevel()

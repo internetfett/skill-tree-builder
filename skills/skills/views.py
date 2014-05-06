@@ -10,7 +10,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 #from django.shortcuts import render
 
 from skills.skills.forms import CreateSkillTreeForm, CreateSkillTreeBranchForm, CreateSkillForm, CreateSkillLevelForm
-from skills.skills.models import SkillTree, SkillTreeBranch, Skill
+from skills.skills.models import SkillTree, SkillTreeBranch, Skill, SkillLevel
 
 
 class LoginRequiredMixin(object):
@@ -107,3 +107,28 @@ class DeleteSkillView(LoginRequiredMixin, SkillMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('create_skill', args=[str(self.object.skill_tree_branch.id)])
+
+
+class SkillLevelMixin(object):
+    template_name = "skill_level_create.html"
+    form_class = CreateSkillLevelForm
+    model = SkillLevel
+
+
+class CreateSkillLevelView(LoginRequiredMixin, SkillLevelMixin, CreateView):
+    def get_initial(self):
+        skill = get_object_or_404(Skill, id=self.kwargs.get('id'))
+        return {
+            'skill': skill,
+        }
+
+
+class UpdateSkillLevelView(LoginRequiredMixin, SkillLevelMixin, UpdateView):
+    template_name = "skill_level_update.html"
+
+
+class DeleteSkillLevelView(LoginRequiredMixin, SkillLevelMixin, DeleteView):
+    template_name = "skill_level_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy('create_skill_level', args=[str(self.object.skill.id)])
