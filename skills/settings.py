@@ -57,9 +57,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'skills.urls'
 
-WSGI_APPLICATION = 'skills.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
