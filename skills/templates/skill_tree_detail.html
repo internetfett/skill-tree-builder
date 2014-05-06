@@ -10,342 +10,64 @@
             {% bootstrap_icon "plus" %} Branch
         </button>
     </div>
-    <div id="branch-nav"></div>
-    <div id="branch-tabs"></div>
-    <div id="branch-form"></div>
-    <div id="skill-level-form"></div>
+    <div id="branch-nav">
+        {% if skilltree.skilltreebranch_set %}
+            <ul class="nav nav-tabs">
+                {% for branch in skilltree.skilltreebranch_set.all %}
+                    <li class="nav-item{% if forloop.first %} active{% endif %}">
+                        <a href="#branch-{{ branch.id }}" data-toggle="tab">{{ branch }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    <div id="branch-tabs">
+        {% if skilltree.skilltreebranch_set %}
+            <div class="tab-content">
+                {% for branch in skilltree.skilltreebranch_set.all %}
+                    <div id="branch-{{ branch.id }}" class="tab-pane{% if forloop.first %} active{% endif %}">
+                        <a class="btn btn-primary" href="{% url 'update_skill_tree_branch' branch.id %}">
+                            {% bootstrap_icon "pencil" %}
+                        </a>
+                        <a class="btn btn-primary" href="{% url 'delete_skill_tree_branch' branch.id %}">
+                            {% bootstrap_icon "trash" %}
+                        </a>
+                        <a class="btn btn-primary" href="{% url 'create_skill' branch.id %}">
+                            {% bootstrap_icon "plus" %} Skill
+                        </a>
+                        {% for skill in branch.skill_set.all %}
+                            <button type="button" class="btn btn-default" data-toggle="popover">
+                                Skill: {{ skill }}
+                            </button>
+                            <a class="btn btn-default" href="{% url 'update_skill' skill.id %}">
+                                {% bootstrap_icon "pencil" %}
+                            </a>
+                            <a class="btn btn-default" href="{% url 'delete_skill' skill.id %}">
+                                {% bootstrap_icon "trash" %}
+                            </a>
+                            {% if skill.point_req %}
+                                Requires: {{ skill.point_req }} points
+                            {% endif %}
+                            {% if skill.other_req %}
+                                {{ skill.other_req }}
+                            {% endif %}
+                            {% for level in skill.skill_levels.all %}
+                                Level: {{ level.level }} Cost: {{ level.cost }}
+                                <a href="{% url 'update_skill_level' level.id %}">
+                                    {% bootstrap_icon "pencil" %}
+                                </a>
+                                <a href="{% url 'delete_skill_level' level.id %}">
+                                    {% bootstrap_icon "trash" %}
+                                </a>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block javascript %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            Backbone.View.prototype.eventAggregator = _.extend({}, Backbone.Events);
-            Backbone.Tastypie.csrfToken = $("input[name=csrfmiddlewaretoken]").value;
-            
-            var SkillTree = new Backbone.Marionette.Application();
-            
-            var SkillLevel = Backbone.Model.extend({
-                defaults: function() {
-                    text: "Default"
-                },
-                url: function() {
-                    return '/api/v1/skill_level/';
-                }
-            });
-            
-            var SkillLevelList = Backbone.Collection.extend({
-                model: SkillLevel,
-                url: function() {
-                    return '/api/v1/skill_level/';
-                }
-            });
-            
-            var SkillLevelView = Backbone.Marionette.ItemView.extend({
-                template: '#skill-level-template'
-            });
-            
-            var Skill = Backbone.Model.extend({
-                defaults: function() {
-                    return {
-                        name: "Default"
-                    };
-                }
-            });
-            
-            var SkillList = Backbone.Collection.extend({
-                model: Skill,
-                url: function() {
-                    return '/api/v1/skill/';
-                }
-            });
-            
-            var SkillView = Backbone.Marionette.CompositeView.extend({
-                template: '#skill-template',
-                tagName: "div",
-                itemView: SkillLevelView,
-                initialize: function() {
-                    this.collection = new SkillLevelList();
-                    this.refresh();
-                    this.listenTo(this.eventAggregator, 'refreshSkills'+this.model.attributes.id, this.refresh);
-                },
-                appendHtml: function(collectionView, itemView) {
-                    collectionView.$el.append(itemView.el);
-                },
-                refresh: function() {
-                    this.collection.fetch({ data: $.param({ skill: this.model.attributes.id }) });
-                }/*,
-                onShow: function() {
-                    $('[data-hover="popover"]', this.el).popover({
-                        trigger: 'hover',
-                        placement: 'right',
-                        html: true,
-                        title: $('.skill_level', this.el).html(),
-                        content: $('.skill_text', this.el).html()
-                    });
-                }*/
-            });
-            
-            var Branch = Backbone.Model.extend({
-                defaults: function() {
-                    return {
-                        name: "Default"
-                    };
-                }
-            });
-            
-            var BranchList = Backbone.Collection.extend({
-                model: Branch,
-                url: '/api/v1/skill_tree_branch/'
-            });
-            
-            var NoItemView = Backbone.Marionette.ItemView.extend({
-                template: '#no-item-template'
-            });
-            
-            var BranchNavView = Backbone.Marionette.ItemView.extend({
-                template: '#branch-nav-template',
-                tagName: "li",
-                className: function() {
-                    var classes = "nav-item";
-                    if(this.model == SkillTree.branches.first()) {
-                        classes += " active";
-                    }
-                    return classes;
-                }
-            });
-            
-            var BranchTabView = Backbone.Marionette.CompositeView.extend({
-                template: '#branch-tab-template',
-                tagName: "div",
-                itemView: SkillView,
-                className: function() {
-                    var classes = "tab-pane";
-                    if(this.model == SkillTree.branches.first()) {
-                        classes += " active";
-                    }
-                    return classes;
-                },
-                id: function() {
-                    return "branch-" + this.model.attributes.id;
-                },
-                initialize: function() {
-                    this.collection = new SkillList();
-                    this.collection.fetch({ data: $.param({ skill_tree_branch: this.model.attributes.id }) });
-                },
-                appendHtml: function(collectionView, itemView) {
-                    collectionView.$el.append(itemView.el);
-                },
-                events: {
-                    'submit': 'createSkill',
-                    'click button[data-hover]': 'prepareSkillLevelForm'
-                },
-                ui: {
-                    name: '#id_skill-name',
-                    point_req: '#id_skill-point_req',
-                    other_req: '#id_skill-other_req',
-                    pre_req: '#id_skill-pre_req'
-                },
-                createSkill: function(event) {
-                    event.preventDefault();
-                    $('#create_skill_' + this.model.attributes.id).modal('hide');
-                    if(!parseInt(this.ui.point_req.val())) this.ui.point_req.val(0);
-                    if(!parseInt(this.ui.pre_req.val())) {
-                        this.collection.create({
-                            name: this.ui.name.val(),
-                            skill_tree_branch: "/api/v1/skill_tree_branch/" + this.model.attributes.id + "/",
-                            point_req: this.ui.point_req.val(),
-                            other_req: this.ui.other_req.val()
-                        }, { wait: true });
-                    } else {
-                        this.collection.create({
-                            name: this.ui.name.val(),
-                            skill_tree_branch: "/api/v1/skill_tree_branch/" + this.model.attributes.id + "/",
-                            point_req: this.ui.point_req.val(),
-                            other_req: this.ui.other_req.val(),
-                            pre_req: "/api/v1/skill/" + this.ui.pre_req.val() + "/"
-                        }, { wait: true });
-                    }
-                    this.ui.name.val('');
-                    this.ui.point_req.val('');
-                    this.ui.other_req.val('');
-                    this.ui.pre_req.val('');
-                },
-                prepareSkillLevelForm: function(event) {
-                    event.preventDefault();
-                    $('#id_skill_level-skill').val(event.currentTarget.attributes['data-ident'].value);
-                }
-            });
-            
-            var BranchesNavView = Backbone.Marionette.CollectionView.extend({
-                itemView: BranchNavView,
-                emptyView: NoItemView,
-                tagName: "ul",
-                className: "nav nav-tabs"
-            });
-            
-            var BranchesTabView = Backbone.Marionette.CollectionView.extend({
-                itemView: BranchTabView,
-                emptyView: NoItemView,
-                tagName: "div",
-                className: "tab-content"
-            });
-            
-            var BranchFormView = Backbone.Marionette.ItemView.extend({
-                template: '#create-branch-form',
-                events: {
-                    'submit #branch_form': 'createBranch'
-                },
-                ui: {
-                    name: '#id_branch-name',
-                    skill_tree: '#id_branch-skill_tree'
-                },
-                createBranch: function(event) {
-                    event.preventDefault();
-                    $('#create_branch').modal('hide');
-                    SkillTree.branches.create({
-                        name: this.ui.name.val(),
-                        skill_tree: "/api/v1/skill_tree/" + this.ui.skill_tree.val() + "/"
-                    }, { wait: true });
-                    this.ui.name.val('');
-                }
-            });
-            
-            var SkillLevelFormView = Backbone.Marionette.ItemView.extend({
-                template: '#create-skill-level-form',
-                events: {
-                    'submit #skill_level_form': 'createSkillLevel'
-                },
-                ui: {
-                    level: '#id_skill_level-level',
-                    cost: '#id_skill_level-cost',
-                    text: '#id_skill_level-text',
-                    skill: '#id_skill_level-skill'
-                },
-                createSkillLevel: function(event) {
-                    event.preventDefault();
-                    $('#create_skill_level').modal('hide');
-                    var skill_level = new SkillLevel({
-                        'level': this.ui.level.val(),
-                        'cost': this.ui.cost.val(),
-                        'text': this.ui.text.val(),
-                        'skill': "/api/v1/skill/" + this.ui.skill.val() + "/"
-                    });
-                    skill_level.save();
-                    this.eventAggregator.trigger('refreshSkills'+this.ui.skill.val());
-                    this.ui.level.val('');
-                    this.ui.cost.val('1');
-                    this.ui.text.val('');
-                }
-            });
-            
-            SkillTree.addRegions({
-                nav: '#branch-nav',
-                tabs: '#branch-tabs',
-                branch_form: '#branch-form',
-                skill_level_form: '#skill-level-form'
-            });
-            
-            SkillTree.addInitializer(function() {
-                SkillTree.branches = new BranchList();
-                SkillTree.branches.fetch();
-                SkillTree.nav.show(new BranchesNavView({ collection: SkillTree.branches }));
-                SkillTree.tabs.show(new BranchesTabView({ collection: SkillTree.branches }));
-                SkillTree.branch_form.show(new BranchFormView({ collection: SkillTree.branches }));
-                SkillTree.skill_level_form.show(new SkillLevelFormView());
-            });
-            
-            SkillTree.start();
-        });
-    </script>
-    
-    <script type="text/template" id="no-item-template">&nbsp;</script>
-    
-    <script type="text/template" id="branch-nav-template">
-        <a href="#branch-<%- id %>" data-toggle="tab"><%- name %></a>
-    </script>
-    
-    <script type="text/template" id="branch-tab-template">
-        Name: <%- name %>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#create_skill_<%- id %>">
-            {% bootstrap_icon "plus" %} Skill
-        </button>
-        <div class="modal fade" id="create_skill_<%- id %>" tabindex="-1" role="dialog">
-            <div class="modal-dialog">
-                <form method="post" class="form" action="javascript:void(0)">
-                    {% csrf_token %}
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Create Skill</h4>
-                        </div>
-                        <div class="modal-body">
-                            {% bootstrap_form skill_form %}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </script>
-    
-    <script type="text/template" id="skill-template">
-        <button type="button" class="btn btn-default" data-hover="popover" data-toggle="modal" data-target="#create_skill_level" data-ident="<%- id %>">
-            Skill: <%- name %>
-        </button>
-    </script>
-    
-    <script type="text/template" id="skill-level-template">
-        <div class="skill_level">Level: <%- level %> Cost: <%- cost %></div>
-        <div class="skill_text"><% if (skill.point_req) { %>Requires <%- skill.point_req %> points<br/><% } %><% if (skill.other_req) { %><%- skill.other_req %><br/><% } %><%- text %></div>
-    </script>
-    
-    <script type="text/template" id="create-branch-form">
-        <div class="modal fade" id="create_branch" tabindex="-1" role="dialog">
-            <div class="modal-dialog">
-                <form method="post" class="form" action="javascript:void(0)" id="branch_form">
-                    {% csrf_token %}
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Create Branch</h4>
-                        </div>
-                        <div class="modal-body">
-                            {% bootstrap_form skill_tree_branch_form %}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </script>
-    
-    <script type="text/template" id="create-skill-level-form">
-        <div class="modal fade" id="create_skill_level" tabindex="-1" role="dialog">
-            <div class="modal-dialog">
-                <form method="post" class="form" action="javascript:void(0)" id="skill_level_form">
-                    {% csrf_token %}
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Create Skill Level</h4>
-                        </div>
-                        <div class="modal-body">
-                            {% bootstrap_form skill_level_form %}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </script>
     
 {% endblock %}
