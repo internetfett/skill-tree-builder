@@ -1,16 +1,7 @@
-{% extends "base.html" %}
+{% extends "base_form_delete.html" %}
 
 {% block title %}Delete Skill Tree Branch{% endblock %}
 
-{% block content %}
+{% block confirm_delete %}
     <p>Are you sure you want to delete {{ skilltreebranch.name }}?
-    {% load bootstrap3 %}
-    <form action="" method="post" class="form">
-        {% csrf_token %}
-        {% buttons %}
-            <button type="submit" class="btn btn-primary">
-                {% bootstrap_icon "star" %} Submit
-            </button>
-        {% endbuttons %}
-    </form>
 {% endblock %}
