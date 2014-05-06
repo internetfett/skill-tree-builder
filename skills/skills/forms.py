@@ -24,10 +24,10 @@ class CreateSkillForm(forms.ModelForm):
     point_req = forms.IntegerField(required=False, initial=0)
     other_req = forms.CharField(required=False)
     pre_req = forms.ModelChoiceField(queryset=Skill.objects.all(), required=False)
+    skill_tree_branch = forms.ModelChoiceField(queryset=SkillTreeBranch.objects.all(), widget=forms.HiddenInput())
 
     class Meta:
         model = Skill
-        exclude = ["skill_tree_branch"]
 
 
 class CreateSkillLevelForm(forms.ModelForm):

@@ -38,6 +38,9 @@ class Skill(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse_lazy('detail_skill_tree', args=[str(self.skill_tree_branch.skill_tree.id)])
+
 
 class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)
@@ -55,3 +58,9 @@ def create_skill_level(sender, instance, created, **kwargs):
         skill_level.save()
 
 models.signals.post_save.connect(create_skill_level, sender=Skill)
+
+def delete_skill_levels(sender, instance, **kwargs):
+    skill_levels = SkillLevel.objects.filter(skill__id=instance.id)
+    skill_levels.delete()
+
+models.signals.post_delete.connect(delete_skill_levels, sender=Skill)
