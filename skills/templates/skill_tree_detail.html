@@ -6,9 +6,9 @@
     {% load bootstrap3 %}
     <h2>{{ skilltree.name }}</h2>
     <div class="pull-right">
-        <button class="btn btn-primary" data-toggle="modal" data-target="#create_branch">
+        <a class="btn btn-primary" href="{% url 'create_skill_tree_branch' skilltree.id %}">
             {% bootstrap_icon "plus" %} Branch
-        </button>
+        </a>
     </div>
     <div id="branch-nav">
         {% if skilltree.skilltreebranch_set %}
@@ -26,40 +26,54 @@
             <div class="tab-content">
                 {% for branch in skilltree.skilltreebranch_set.all %}
                     <div id="branch-{{ branch.id }}" class="tab-pane{% if forloop.first %} active{% endif %}">
-                        <a class="btn btn-primary" href="{% url 'update_skill_tree_branch' branch.id %}">
-                            {% bootstrap_icon "pencil" %}
-                        </a>
-                        <a class="btn btn-primary" href="{% url 'delete_skill_tree_branch' branch.id %}">
-                            {% bootstrap_icon "trash" %}
-                        </a>
-                        <a class="btn btn-primary" href="{% url 'create_skill' branch.id %}">
-                            {% bootstrap_icon "plus" %} Skill
-                        </a>
-                        {% for skill in branch.skill_set.all %}
-                            <button type="button" class="btn btn-default" data-toggle="popover">
-                                Skill: {{ skill }}
-                            </button>
-                            <a class="btn btn-default" href="{% url 'update_skill' skill.id %}">
+                        <div class="branch-tools pull-right">
+                            <a class="btn btn-primary" href="{% url 'update_skill_tree_branch' branch.id %}">
                                 {% bootstrap_icon "pencil" %}
                             </a>
-                            <a class="btn btn-default" href="{% url 'delete_skill' skill.id %}">
+                            <a class="btn btn-primary" href="{% url 'delete_skill_tree_branch' branch.id %}">
                                 {% bootstrap_icon "trash" %}
                             </a>
-                            {% if skill.point_req %}
-                                Requires: {{ skill.point_req }} points
-                            {% endif %}
-                            {% if skill.other_req %}
-                                {{ skill.other_req }}
-                            {% endif %}
-                            {% for level in skill.skill_levels.all %}
-                                Level: {{ level.level }} Cost: {{ level.cost }}
-                                <a href="{% url 'update_skill_level' level.id %}">
-                                    {% bootstrap_icon "pencil" %}
-                                </a>
-                                <a href="{% url 'delete_skill_level' level.id %}">
-                                    {% bootstrap_icon "trash" %}
-                                </a>
-                            {% endfor %}
+                            <a class="btn btn-primary" href="{% url 'create_skill' branch.id %}">
+                                {% bootstrap_icon "plus" %} Skill
+                            </a>
+                        </div>
+                        {% for skill in branch.skill_set.all %}
+                            <div class="skill-wrap">
+                                <button type="button" class="btn btn-default" data-toggle="popover">
+                                    Skill: {{ skill }}
+                                </button>
+                                <div class="skill-tools">
+                                    <a class="btn btn-default" href="{% url 'update_skill' skill.id %}">
+                                        {% bootstrap_icon "pencil" %}
+                                    </a>
+                                    <a class="btn btn-default" href="{% url 'delete_skill' skill.id %}">
+                                        {% bootstrap_icon "trash" %}
+                                    </a>
+                                    <a class="btn btn-default" href="{% url 'create_skill_level' skill.id %}">
+                                        {% bootstrap_icon "plus" %} Level
+                                    </a>
+                                </div>
+                                {% if skill.point_req %}
+                                    Requires: {{ skill.point_req }} points
+                                {% endif %}
+                                {% if skill.other_req %}
+                                    {{ skill.other_req }}
+                                {% endif %}
+                                {% for level in skill.skill_levels.all|dictsort:"level" %}
+                                    <div class="skill-level-wrap">
+                                        Level: {{ level.level }} Cost: {{ level.cost }}<br/>
+                                        {{ level.text }}
+                                        <div class="skill-level-tools">
+                                            <a href="{% url 'update_skill_level' level.id %}">
+                                                {% bootstrap_icon "pencil" %}
+                                            </a>
+                                            <a href="{% url 'delete_skill_level' level.id %}">
+                                                {% bootstrap_icon "trash" %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         {% endfor %}
                     </div>
                 {% endfor %}

@@ -3,6 +3,13 @@
 {% block title %}Skill Trees{% endblock %}
 
 {% block content %}
+    {% load bootstrap3 %}
+    <h2>All Skill Trees</h2>
+    <div class="pull-right">
+        <a class="btn btn-primary" href="{% url 'create_skill_tree' %}">
+            {% bootstrap_icon "plus" %} Tree
+        </a>
+    </div>
     {% for skilltree in skilltree_list %}
         <a href="{% url 'detail_skill_tree' skilltree.id %}">{{ skilltree.name }}</a>
     {% endfor %}
