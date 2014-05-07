@@ -38,10 +38,10 @@
                             </a>
                         </div>
                         {% for skill in branch.skill_set.all %}
-                            <div class="skill-wrap">
-                                <button type="button" class="btn btn-default" data-toggle="popover">
-                                    Skill: {{ skill }}
-                                </button>
+                            <button type="button" id="skill-{{ skill.id }}" class="btn btn-default" data-toggle="popover">
+                                Skill: {{ skill }}
+                            </button>
+                            <div class="skill-wrap hidden">
                                 <div class="skill-tools">
                                     <a class="btn btn-default" href="{% url 'update_skill' skill.id %}">
                                         {% bootstrap_icon "pencil" %}
@@ -75,6 +75,7 @@
                                 {% endfor %}
                             </div>
                         {% endfor %}
+                        <div id="container-{{ branch.id }}"></div>
                     </div>
                 {% endfor %}
             </div>
@@ -83,5 +84,19 @@
 {% endblock %}
 
 {% block javascript %}
-    
+    {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'js/jquery.jsPlumb-1.6.0-min.js' %}"></script>
+    <script type="text/javascript">
+        jsPlumb.ready(function() {
+            // Run some code!
+            jsPlumb.Defaults.Anchors = ["Bottom", "Top"];
+            jsPlumb.Defaults.Connector = ["Flowchart", { stub: [20, 30], gap: 0, cornerRadius: 5, alwaysRespectStubs: true }],
+            jsPlumb.Defaults.Container = $('#container-1');
+            jsPlumb.Defaults.Endpoint = ["Rectangle", { height: 10, width: 15 }];
+            jsPlumb.Defaults.EndpointStyle = { fillStyle: "#428bca" };
+            jsPlumb.Defaults.PaintStyle = { lineWidth: 3, strokeStyle: "#428bca" },
+            jsPlumb.connect({ source: $('#skill-1'), target: $('#skill-2'), overlays: ["Arrow"] });
+            jsPlumb.connect({ source: $('#skill-1'), target: $('#skill-3'), overlays: ["Arrow"] });
+        });
+    </script>
 {% endblock %}

@@ -17,6 +17,11 @@
 {% endblock %}
 
 {% block javascript %}
+    <script type="text/javascript" src="{% static 'js/underscore-min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/backbone-min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/backbone-tastypie.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/backbone.marionette.min.js' %}"></script>
+
     <script type="text/javascript">
         $(document).ready(function() {
             Backbone.View.prototype.eventAggregator = _.extend({}, Backbone.Events);
