@@ -97,9 +97,19 @@ class CreateSkillView(LoginRequiredMixin, SkillMixin, CreateView):
             'skill_tree_branch': skill_tree_branch,
         }
 
+    def get_context_data(self, **kwargs):
+        context = super(CreateSkillView, self).get_context_data(**kwargs)
+        context['form'].fields['pre_req'].queryset = Skill.objects.filter(skill_tree_branch__id=self.kwargs.get('id'))
+        return context
+
 
 class UpdateSkillView(LoginRequiredMixin, SkillMixin, UpdateView):
     template_name = "skill_update.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateSkillView, self).get_context_data(**kwargs)
+        context['form'].fields['pre_req'].queryset = Skill.objects.filter(skill_tree_branch__id=self.object.skill_tree_branch.id)
+        return context
 
 
 class DeleteSkillView(LoginRequiredMixin, SkillMixin, DeleteView):

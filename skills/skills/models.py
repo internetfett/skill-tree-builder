@@ -41,6 +41,16 @@ class Skill(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('detail_skill_tree', args=[str(self.skill_tree_branch.skill_tree.id)])
 
+    def get_depth(self):
+        depth = 0
+        return self._depth(depth)
+
+    def _depth(self, depth):
+        if self.pre_req:
+            depth += 1
+            return self.pre_req._depth(depth)
+        return depth
+
 
 class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)

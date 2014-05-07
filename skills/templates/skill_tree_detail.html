@@ -2,6 +2,20 @@
 
 {% block title %}{{ skilltree.name }}{% endblock %}
 
+{% block css %}
+    <style type="text/css">
+        .tab-pane {
+            padding: 10px 0px;
+        }
+        .popover hr {
+            margin: 5px 0px;
+        }
+        .container-jsPlumb {
+            position: relative;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     {% load bootstrap3 %}
     <h2>{{ skilltree.name }}</h2>
@@ -37,45 +51,47 @@
                                 {% bootstrap_icon "plus" %} Skill
                             </a>
                         </div>
-                        {% for skill in branch.skill_set.all %}
-                            <button type="button" id="skill-{{ skill.id }}" class="btn btn-default" data-toggle="popover">
-                                Skill: {{ skill }}
-                            </button>
-                            <div class="skill-wrap hidden">
-                                <div class="skill-tools">
-                                    <a class="btn btn-default" href="{% url 'update_skill' skill.id %}">
-                                        {% bootstrap_icon "pencil" %}
-                                    </a>
-                                    <a class="btn btn-default" href="{% url 'delete_skill' skill.id %}">
-                                        {% bootstrap_icon "trash" %}
-                                    </a>
-                                    <a class="btn btn-default" href="{% url 'create_skill_level' skill.id %}">
-                                        {% bootstrap_icon "plus" %} Level
-                                    </a>
-                                </div>
-                                {% if skill.point_req %}
-                                    Requires: {{ skill.point_req }} points
-                                {% endif %}
-                                {% if skill.other_req %}
-                                    {{ skill.other_req }}
-                                {% endif %}
-                                {% for level in skill.skill_levels.all|dictsort:"level" %}
-                                    <div class="skill-level-wrap">
-                                        Level: {{ level.level }} Cost: {{ level.cost }}<br/>
-                                        {{ level.text }}
-                                        <div class="skill-level-tools">
-                                            <a href="{% url 'update_skill_level' level.id %}">
-                                                {% bootstrap_icon "pencil" %}
-                                            </a>
-                                            <a href="{% url 'delete_skill_level' level.id %}">
-                                                {% bootstrap_icon "trash" %}
-                                            </a>
-                                        </div>
+                        <div id="container-{{ branch.id }}" class="container-jsPlumb">
+                            {% for skill in branch.skill_set.all %}
+                                <button type="button" id="skill-{{ skill.id }}" class="btn btn-default" data-toggle="popover">
+                                    {{ skill }}
+                                </button>
+                                <div class="skill-wrap hidden">
+                                    <div class="skill-tools">
+                                        <a class="btn btn-default" href="{% url 'update_skill' skill.id %}">
+                                            {% bootstrap_icon "pencil" %}
+                                        </a>
+                                        <a class="btn btn-default" href="{% url 'delete_skill' skill.id %}">
+                                            {% bootstrap_icon "trash" %}
+                                        </a>
+                                        <a class="btn btn-default" href="{% url 'create_skill_level' skill.id %}">
+                                            {% bootstrap_icon "plus" %} Level
+                                        </a>
                                     </div>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                        <div id="container-{{ branch.id }}"></div>
+                                    {% if skill.point_req %}
+                                        Requires: {{ skill.point_req }} points
+                                    {% endif %}
+                                    {% if skill.other_req %}
+                                        <b>{{ skill.other_req }}</b>
+                                    {% endif %}
+                                    {% for level in skill.skill_levels.all|dictsort:"level" %}
+                                        <div class="skill-level-wrap">
+                                            Level: {{ level.level }} Cost: {{ level.cost }}<br/>
+                                            {{ level.text }}
+                                            <div class="skill-level-tools">
+                                                <a href="{% url 'update_skill_level' level.id %}">
+                                                    {% bootstrap_icon "pencil" %}
+                                                </a>
+                                                <a href="{% url 'delete_skill_level' level.id %}">
+                                                    {% bootstrap_icon "trash" %}
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% if not forloop.last %}<hr/>{% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -87,16 +103,50 @@
     {% load staticfiles %}
     <script type="text/javascript" src="{% static 'js/jquery.jsPlumb-1.6.0-min.js' %}"></script>
     <script type="text/javascript">
+        // Override Bootstrap popover to stay open while hovering
+        var oldHide = $.fn.popover.Constructor.prototype.hide;
+        $.fn.popover.Constructor.prototype.hide = function() {
+            if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+                var that = this;
+                setTimeout(function() {
+                    return that.hide.call(that, arguments);
+                }, that.options.delay.hide);
+                return;
+            }
+            oldHide.call(this, arguments);
+        };
+        
+        $(document).ready(function() {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'right',
+                html: true,
+                title: function() {
+                    return $(this).text();
+                },
+                content: function() {
+                    return $(this).next().html();
+                }
+            });
+        });
+        
         jsPlumb.ready(function() {
-            // Run some code!
-            jsPlumb.Defaults.Anchors = ["Bottom", "Top"];
-            jsPlumb.Defaults.Connector = ["Flowchart", { stub: [20, 30], gap: 0, cornerRadius: 5, alwaysRespectStubs: true }],
-            jsPlumb.Defaults.Container = $('#container-1');
-            jsPlumb.Defaults.Endpoint = ["Rectangle", { height: 10, width: 15 }];
-            jsPlumb.Defaults.EndpointStyle = { fillStyle: "#428bca" };
-            jsPlumb.Defaults.PaintStyle = { lineWidth: 3, strokeStyle: "#428bca" },
-            jsPlumb.connect({ source: $('#skill-1'), target: $('#skill-2'), overlays: ["Arrow"] });
-            jsPlumb.connect({ source: $('#skill-1'), target: $('#skill-3'), overlays: ["Arrow"] });
+            {% for branch in skilltree.skilltreebranch_set.all %}
+                var jsPlumb{{ branch.id }} = jsPlumb.getInstance();
+                // Set up defaults
+                jsPlumb{{ branch.id }}.Defaults.Anchors = ["Bottom", "Top"];
+                jsPlumb{{ branch.id }}.Defaults.Connector = ["Flowchart", { stub: [20, 30], gap: 0, cornerRadius: 5, alwaysRespectStubs: true }],
+                jsPlumb{{ branch.id }}.Defaults.Container = $('#container-{{ branch.id }}');
+                jsPlumb{{ branch.id }}.Defaults.Endpoint = ["Rectangle", { height: 10, width: 15 }];
+                jsPlumb{{ branch.id }}.Defaults.EndpointStyle = { fillStyle: "#428bca" };
+                jsPlumb{{ branch.id }}.Defaults.PaintStyle = { lineWidth: 3, strokeStyle: "#428bca" };
+                {% for skill in branch.skill_set.all %}
+                    {% if skill.pre_req %}
+                        // Connect endpoints
+                        jsPlumb{{ branch.id }}.connect({ source: $('#skill-{{ skill.pre_req.id }}'), target: $('#skill-{{ skill.id }}'), overlays: ["Arrow"] });
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         });
     </script>
 {% endblock %}
