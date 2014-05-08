@@ -57,7 +57,7 @@
                         </div>
                         <div id="container-{{ branch.id }}" class="container-jsPlumb">
                             {% for skill in branch.skill_set.all %}
-                                <button type="button" id="skill-{{ skill.id }}" class="btn btn-default" data-toggle="popover" style="position: absolute; left: {{ skill.posx }}px; top: {{ skill.posy }}px;">
+                                <button type="button" id="skill-{{ skill.id }}" class="btn btn-default draggable" data-toggle="popover" style="position: absolute; left: {{ skill.posx }}px; top: {{ skill.posy }}px;">
                                     {{ skill }}
                                 </button>
                                 <div class="skill-wrap hidden">
@@ -105,10 +105,11 @@
 
 {% block javascript %}
     {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'js/jquery-ui-1.9.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.jsPlumb-1.6.0-min.js' %}"></script>
     <script type="text/javascript">
         // Override Bootstrap popover to stay open while hovering
-        var oldHide = $.fn.popover.Constructor.prototype.hide;
+        /*var oldHide = $.fn.popover.Constructor.prototype.hide;
         $.fn.popover.Constructor.prototype.hide = function() {
             if (this.options.trigger === "hover" && this.tip().is(":hover")) {
                 var that = this;
@@ -118,11 +119,11 @@
                 return;
             }
             oldHide.call(this, arguments);
-        };
+        };*/
         
         $(document).ready(function() {
             $('[data-toggle="popover"]').popover({
-                trigger: 'hover',
+                trigger: 'click',
                 placement: 'right',
                 html: true,
                 title: function() {
@@ -141,10 +142,18 @@
                 jsPlumb{{ branch.id }}.Defaults.Anchors = ["Bottom", "Top"];
                 jsPlumb{{ branch.id }}.Defaults.Connector = ["Flowchart", { stub: [20, 30], gap: 0, cornerRadius: 5, alwaysRespectStubs: true }],
                 jsPlumb{{ branch.id }}.Defaults.Container = $('#container-{{ branch.id }}');
+                //jsPlumb{{ branch.id }}.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
                 jsPlumb{{ branch.id }}.Defaults.Endpoint = ["Rectangle", { height: 10, width: 15 }];
                 jsPlumb{{ branch.id }}.Defaults.EndpointStyle = { fillStyle: "#428bca" };
                 jsPlumb{{ branch.id }}.Defaults.PaintStyle = { lineWidth: 3, strokeStyle: "#428bca" };
                 {% for skill in branch.skill_set.all %}
+                    // Make draggable
+                    jsPlumb{{ branch.id }}.draggable($("#skill-{{ skill.id }}"), {
+                        cancel: false,
+                        //grid: [20, 20],
+                        start: closePopover,
+                        stop: savePosition
+                    });
                     {% if skill.pre_req %}
                         // Connect endpoints
                         jsPlumb{{ branch.id }}.connect({ source: $('#skill-{{ skill.pre_req.id }}'), target: $('#skill-{{ skill.id }}'), overlays: ["Arrow"] });
@@ -152,5 +161,23 @@
                 {% endfor %}
             {% endfor %}
         });
+        
+        function closePopover(event, ui) {
+            $('#'+ui.helper.context.id).popover('hide');
+        }
+        
+        function savePosition(event, ui) {
+            var id = ui.helper.context.id.replace("skill-", "");
+            var posx = ui.position.left;
+            var posy = ui.position.top;
+            $.ajax({
+                async : true,
+                url: '/api/v1/skill/'+id+'/',
+                type: 'PATCH',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify({ posx: posx, posy: posy })
+            });
+        }
     </script>
 {% endblock %}
