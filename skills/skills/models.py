@@ -64,9 +64,3 @@ def create_skill_level(sender, instance, created, **kwargs):
         skill_level.save()
 
 models.signals.post_save.connect(create_skill_level, sender=Skill)
-
-def delete_skill_levels(sender, instance, **kwargs):
-    skill_levels = SkillLevel.objects.filter(skill__id=instance.id)
-    skill_levels.delete()
-
-models.signals.post_delete.connect(delete_skill_levels, sender=Skill)

@@ -148,7 +148,7 @@
                 jsPlumb{{ branch.id }}.Defaults.PaintStyle = { lineWidth: 3, strokeStyle: "#428bca" };
                 {% for skill in branch.skill_set.all %}
                     // Make draggable
-                    jsPlumb{{ branch.id }}.draggable($("#skill-{{ skill.id }}"), {
+                    jsPlumb{{ branch.id }}.draggable($('#skill-{{ skill.id }}'), {
                         cancel: false,
                         //grid: [20, 20],
                         start: closePopover,
@@ -159,11 +159,15 @@
                         jsPlumb{{ branch.id }}.connect({ source: $('#skill-{{ skill.pre_req.id }}'), target: $('#skill-{{ skill.id }}'), overlays: ["Arrow"] });
                     {% endif %}
                 {% endfor %}
+                // Repaint after tab toggle
+                $('a[href=#branch-{{ branch.id }}]').on('shown.bs.tab', function (e) {
+                    jsPlumb{{ branch.id }}.repaintEverything();
+                });
             {% endfor %}
         });
         
         function closePopover(event, ui) {
-            $('#'+ui.helper.context.id).popover('hide');
+            $('#'+ui.helper.context.id).popover("hide");
         }
         
         function savePosition(event, ui) {
