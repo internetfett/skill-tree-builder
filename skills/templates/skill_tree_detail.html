@@ -7,6 +7,10 @@
         .tab-pane {
             padding: 10px 0px;
         }
+        .branch-tools {
+            position: relative;
+            z-index: 5;
+        }
         .popover hr {
             margin: 5px 0px;
         }
@@ -53,7 +57,7 @@
                         </div>
                         <div id="container-{{ branch.id }}" class="container-jsPlumb">
                             {% for skill in branch.skill_set.all %}
-                                <button type="button" id="skill-{{ skill.id }}" class="btn btn-default" data-toggle="popover">
+                                <button type="button" id="skill-{{ skill.id }}" class="btn btn-default" data-toggle="popover" style="position: absolute; left: {{ skill.posx }}px; top: {{ skill.posy }}px;">
                                     {{ skill }}
                                 </button>
                                 <div class="skill-wrap hidden">
