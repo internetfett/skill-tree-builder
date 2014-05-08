@@ -81,6 +81,9 @@
                                     {% for level in skill.skill_levels.all|dictsort:"level" %}
                                         <div class="skill-level-wrap">
                                             Level: {{ level.level }} Cost: {{ level.cost }}<br/>
+                                            {% if level.cooldown %}
+                                                Cooldown: {{ level.cooldown }} seconds<br/>
+                                            {% endif %}
                                             {{ level.text }}
                                             <div class="skill-level-tools">
                                                 <a href="{% url 'update_skill_level' level.id %}">

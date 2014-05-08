@@ -47,6 +47,7 @@ class Skill(models.Model):
 class SkillLevel(models.Model):
     level = models.IntegerField(blank=True, default=1)
     cost = models.IntegerField(blank=True, default=1)
+    cooldown = models.IntegerField(blank=True, default=0)
     text = models.CharField(max_length=255, blank=False)
     skill = models.ForeignKey(Skill, related_name='skill_levels')
 

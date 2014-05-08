@@ -28,11 +28,13 @@ class CreateSkillForm(forms.ModelForm):
 
     class Meta:
         model = Skill
+        exclude = ["posx", "posy"]
 
 
 class CreateSkillLevelForm(forms.ModelForm):
     level = forms.IntegerField(required=False)
     cost = forms.IntegerField(required=False, initial=1)
+    cooldown = forms.IntegerField(required=False, initial=0)
     text = forms.CharField(required=True)
     skill = forms.ModelChoiceField(queryset=Skill.objects.all(), required=True, widget=forms.HiddenInput())
 
